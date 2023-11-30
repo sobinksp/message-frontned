@@ -12,23 +12,10 @@ const Register = () => {
         e.preventDefault();
         try {
             const apiUrl = "https://localhost/register";
-            const response = await fetch(apiUrl, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-            });
-
-            if (response.ok) {
-                const responseData = await response.json();
-                alert(responseData);
-            } else {
-                alert(response.statusText);
-            }
-        
+            const response = await axios.post(apiUrl, formData);
+            alert(response.data);
         } catch (error) {
-            alert(error.message);
+            console.error(error);
         }
     };
 
