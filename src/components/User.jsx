@@ -1,19 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
+import React from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { Link, Outlet } from "react-router-dom";
-import axios from "axios";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import Shiba from "./Shiba";
 
 const User = () => {
     const { user, logout, isAdmin } = useAuth();
-    const [successMessage, setSuccessMessage] = useState("");
-    const [errorMessage, setErrorMessage] = useState("");
-    const inputRef = useRef(null);
-
-    useEffect(() => {
-        if (!user) {
-            return logout();
-        }
-    }, []);
+    const isUserPath = useLocation().pathname === "/user";
 
     return (
         <div className="d-flex justify-content-center align-items-center" style={{ height: "100vh" }}>
@@ -32,23 +24,28 @@ const User = () => {
                         Welcome <span className="text-primary">{user?.username}</span>
                     </h5>
                     <h6 className="card-subtitle mb-2 text-body-secondary">Logged in as {user?.role}</h6>
-                    <hr />
-                    <Outlet />
                 </div>
-                
                 <ul className="list-group list-group-flush">
+                    <Link className="list-group-item list-group-item-action" to="/user">
+                        Main
+                    </Link>
                     <Link className="list-group-item list-group-item-action" to="./verify">
                         Verify
                     </Link>
-                    <a className="list-group-item list-group-item-action" href="#">
-                        A third item
-                    </a>
                     {isAdmin && (
                         <Link className="list-group-item list-group-item-action" to="./manage">
-                            Mange User
+                            Manage User
                         </Link>
                     )}
                 </ul>
+                <div className="card-body">
+                    {isUserPath && (
+                        <div className="text-primary text-center">
+                            Hello, this is main page
+                        </div>
+                    )}
+                    <Outlet />
+                </div>
                 <div className="card-body d-flex justify-content-end ">
                     <button className="btn btn-outline-danger" onClick={() => logout()}>
                         Logout

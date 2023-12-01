@@ -44,9 +44,9 @@ const Verify = () => {
             ) : (
                 <div></div>
             )}
-            <div class="input-group mb-3">
-                <input type="text" class="form-control" id="token" value={user?.token} readOnly ref={inputRef} />
-                <button class="btn btn-primary" type="button" onClick={handleCopyToClipboard}>
+            <div className="input-group mb-3">
+                <input type="text" className="form-control" id="token" value={user?.token} readOnly ref={inputRef} />
+                <button className="btn btn-primary" type="button" onClick={handleCopyToClipboard}>
                     Copy
                 </button>
             </div>
