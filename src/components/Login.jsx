@@ -3,18 +3,34 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 const Login = () => {
-    const { user, setUser } = useAuth();
-    const [isLoading, setIsLoading] = useState(false);
     const navigate = useNavigate();
+    const { user, setUser, setIsAdmin } = useAuth();
+    const [isLoading, setIsLoading] = useState(false);
+    const [rememberMe, setRememberMe] = useState(false);
     const [formData, setFormData] = useState({
         username: "",
         password: "",
     });
+
+    useEffect(() => {
+        const storedUsername = localStorage.getItem("username");
+        const rememberMe = localStorage.getItem("rememberMe");
+        if (storedUsername && rememberMe === "true") {
+            setRememberMe(true);
+            setFormData((prevData) => ({...prevData, username:storedUsername}))
+        }
+    }, [rememberMe]);
+
     useEffect(() => {
         if (user) {
             navigate("/user");
         }
     }, [user]);
+
+    const handleRememberMeChange = () => {
+        setRememberMe(!rememberMe);
+      };
+
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
@@ -22,6 +38,8 @@ const Login = () => {
             const response = await axios.post("http://localhost:8080/api/auth/authentication", formData);
             localStorage.setItem("auth_token", response.data.token);
             setUser(response.data);
+            if (response.data.role === "ADMIN") setIsAdmin(true);
+            if (rememberMe) localStorage.setItem('username', formData.username);
             navigate("/user");
             alert("Login successful");
         } catch (error) {
@@ -83,7 +101,7 @@ const Login = () => {
                             />
                         </div>
                         <div className="form-check mb-3">
-                            <input className="form-check-input" type="checkbox" value="" id="rememberMe" />
+                            <input className="form-check-input" type="checkbox" checked={rememberMe} onChange={handleRememberMeChange} id="rememberMe" />
                             <label className="form-check-label" htmlFor="rememberMe">
                                 Remember me
                             </label>
