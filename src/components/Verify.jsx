@@ -1,5 +1,6 @@
 import React, { useRef, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import axios from "axios";
 
 const Verify = () => {
     const { user } = useAuth();
