@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import toast from "react-hot-toast";
 import axios from "axios";
+
 const Login = () => {
     const navigate = useNavigate();
     const { user, setUser, setIsAdmin } = useAuth();
@@ -17,7 +19,7 @@ const Login = () => {
         const rememberMe = localStorage.getItem("rememberMe");
         if (storedUsername && rememberMe === "true") {
             setRememberMe(true);
-            setFormData((prevData) => ({...prevData, username:storedUsername}))
+            setFormData((prevData) => ({ ...prevData, username: storedUsername }));
         }
     }, [rememberMe]);
 
@@ -25,11 +27,11 @@ const Login = () => {
         if (user) {
             navigate("/user");
         }
-    }, [user]);
+    }, [user, navigate]);
 
     const handleRememberMeChange = () => {
         setRememberMe(!rememberMe);
-      };
+    };
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -39,12 +41,11 @@ const Login = () => {
             localStorage.setItem("user_data", JSON.stringify(response.data));
             setUser(response.data);
             if (response.data.role === "ADMIN") setIsAdmin(true);
-            if (rememberMe) localStorage.setItem('username', formData.username);
-            navigate("/user");
-            alert("Login successful");
+            if (rememberMe) localStorage.setItem("username", formData.username);
+            toast.success("Logged in successfully");
         } catch (error) {
             console.error(error);
-            alert("Error login");
+            toast.error("Error", error);
         } finally {
             setIsLoading(false);
         }

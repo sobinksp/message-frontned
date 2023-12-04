@@ -1,13 +1,14 @@
 import axios from "axios";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
+import toast from "react-hot-toast";
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isAdmin, setIsAdmin] = useState(null);
-    const [isOpen, setIsOpen] = useState();
+    const [isOpen, setIsOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -35,10 +36,14 @@ export const AuthProvider = ({ children }) => {
     }, []);
 
     const logout = () => {
+        toast.success("Logged out successfully")
         localStorage.removeItem('user_data')
         setUser(null);
+        setIsAdmin(false);
+        setIsOpen(false);
         navigate("/");
-        window.location.reload(true);
+        // window.location.reload(true);
+        
     };
 
     return <AuthContext.Provider value={{ user, setUser, logout, isAdmin, setIsAdmin, isOpen, setIsOpen }}>{children}</AuthContext.Provider>;

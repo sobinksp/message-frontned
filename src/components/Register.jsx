@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
+import toast from "react-hot-toast";
 
 const Register = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -30,12 +31,12 @@ const Register = () => {
         try {
             setIsLoading(true);
             const response = await axios.post("http://localhost:8080/api/auth/register", formData);
-            alert("Register successful");
+            toast.success("Registered successfully");
             navigate("/login");
             setErrorMessage("");
         } catch (error) {
             console.error(error);
-            alert("Error Register");
+            toast.success("Error ", error);
         } finally {
             setIsLoading(false);
         }
@@ -48,7 +49,12 @@ const Register = () => {
 
     const handleChange = (e) => {
         const { id, value } = e.target;
-        if (isValidUsername(value)) {
+        if (isValidUsername(value) && id === "username") {
+            setFormData((prevData) => ({
+                ...prevData,
+                [id]: value,
+            }));
+        } else {
             setFormData((prevData) => ({
                 ...prevData,
                 [id]: value,

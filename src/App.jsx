@@ -6,8 +6,9 @@ import Login from "./components/Login";
 import Home from "./components/Home";
 import User from "./components/User";
 import { AuthProvider } from "./contexts/AuthContext";
-import Manage from "./components/Manage";
+import Manage from "./components/ManageUsers/Manage";
 import Verify from "./components/Verify";
+import { Toaster } from "react-hot-toast";
 function App() {
     return (
         <BrowserRouter>
@@ -23,6 +24,7 @@ function App() {
                     <Route path="*" element={<Login />}/>
                 </Routes>
             </AuthProvider>
+            <Toaster position="top-center" reverseOrder={false} />
         </BrowserRouter>
     );
 }
