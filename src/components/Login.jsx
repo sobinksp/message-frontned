@@ -21,7 +21,7 @@ const Login = () => {
             setRememberMe(true);
             setFormData((prevData) => ({ ...prevData, username: storedUsername }));
         }
-    }, [rememberMe]);
+    }, []);
 
     useEffect(() => {
         if (user) {
@@ -30,7 +30,9 @@ const Login = () => {
     }, [user, navigate]);
 
     const handleRememberMeChange = () => {
+        localStorage.setItem("rememberMe", !rememberMe);
         setRememberMe(!rememberMe);
+        
     };
 
     const handleLogin = async (e) => {
