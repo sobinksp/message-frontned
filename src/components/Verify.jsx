@@ -1,13 +1,15 @@
 import React, { useRef, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const Verify = () => {
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
     const [infoMessage, setInfoMessage] = useState("");
     const inputRef = useRef(null);
-    const { user, isOpen, setIsOpen } = useAuth();
+    const { user, setIsOpen } = useAuth();
+    const navigate = useNavigate();
     const handleCopyToClipboard = () => {
         if (inputRef.current) {
             inputRef.current.select();
