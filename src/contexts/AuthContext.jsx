@@ -7,6 +7,7 @@ const AuthContext = createContext();
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
     const [isAdmin, setIsAdmin] = useState(null);
+    const [isOpen, setIsOpen] = useState();
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -21,7 +22,7 @@ export const AuthProvider = ({ children }) => {
                         { headers: { Authorization: `Bearer ${token}` } }
                     );
                     setUser(response.data);
-                    setIsAdmin(response.data.role === "ADMIN")
+                    setIsAdmin(response.data.role === "ADMIN");
                 } catch (error) {
                     console.error(error);
                     logout();
@@ -40,7 +41,7 @@ export const AuthProvider = ({ children }) => {
         window.location.reload(true);
     };
 
-    return <AuthContext.Provider value={{ user, setUser, logout, isAdmin, setIsAdmin }}>{children}</AuthContext.Provider>;
+    return <AuthContext.Provider value={{ user, setUser, logout, isAdmin, setIsAdmin, isOpen, setIsOpen }}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {

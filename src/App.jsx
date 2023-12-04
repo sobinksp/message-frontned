@@ -20,6 +20,7 @@ function App() {
                         <Route path="verify" element={<Verify />}/>
                         <Route path="manage" element={<Manage />}/>
                     </Route>
+                    <Route path="*" element={<Login />}/>
                 </Routes>
             </AuthProvider>
         </BrowserRouter>

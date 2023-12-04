@@ -3,15 +3,19 @@ import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 
 const Verify = () => {
-    const { user } = useAuth();
     const [successMessage, setSuccessMessage] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    const [infoMessage, setInfoMessage] = useState("");
     const inputRef = useRef(null);
-
+    const { user, isOpen, setIsOpen } = useAuth();
     const handleCopyToClipboard = () => {
         if (inputRef.current) {
             inputRef.current.select();
             document.execCommand("copy");
+            setInfoMessage("Copied to clipboard")
+            setTimeout(() => {
+                setInfoMessage("");
+            }, 3000);
         }
     };
 
@@ -25,23 +29,36 @@ const Verify = () => {
             setSuccessMessage(response.data);
             setTimeout(() => {
                 setSuccessMessage("");
-            }, 5000);
+            }, 3000);
         } catch (error) {
             console.error(error);
             setErrorMessage("Error verify token");
             setTimeout(() => {
                 setErrorMessage("");
-            }, 5000);
+            }, 3000);
         }
     };
 
     return (
-        <>
+        <div className="card-body">
+            <div className="d-flex justify-content-between">
+                <h5 className="card-title">Token Verification</h5>
+                <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => {
+                        setIsOpen(false);
+                        navigate("/user");
+                    }}
+                />
+            </div>
             {errorMessage ? (
                 <div className="alert alert-danger ">{errorMessage}</div>
             ) : successMessage ? (
                 <div className="alert alert-success ">{successMessage}</div>
-            ) : (
+            ) : infoMessage ? (
+                <div className="alert alert-info">{infoMessage}</div>
+            ): (
                 <div></div>
             )}
             <div className="input-group mb-3">
@@ -53,7 +70,7 @@ const Verify = () => {
             <button className="btn btn-success w-100 fw-bold" onClick={handleVerifyToken}>
                 Verify
             </button>
-        </>
+        </div>
     );
 };
 
