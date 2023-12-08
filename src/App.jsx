@@ -9,20 +9,25 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Manage from "./components/ManageUsers/Manage";
 import Verify from "./components/Verify";
 import { Toaster } from "react-hot-toast";
+import Chat from "./components/Chat/Chat";
+import { ChatProvider } from "./contexts/ChatContext";
 function App() {
     return (
         <BrowserRouter>
             <AuthProvider>
-                <Routes>
-                    <Route exact path="/" element={<Home />} />
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
-                    <Route path="/user" element={<User />}>
-                        <Route path="verify" element={<Verify />}/>
-                        <Route path="manage" element={<Manage />}/>
-                    </Route>
-                    <Route path="*" element={<Login />}/>
-                </Routes>
+                <ChatProvider>
+                    <Routes>
+                        <Route exact path="/" element={<Home />} />
+                        <Route path="/login" element={<Login />} />
+                        <Route path="/register" element={<Register />} />
+                        <Route path="/user" element={<User />}>
+                            <Route path="verify" element={<Verify />} />
+                            <Route path="manage" element={<Manage />} />
+                        </Route>
+                        <Route path="/chat" element={<Chat />} />
+                        <Route path="*" element={<Login />} />
+                    </Routes>
+                </ChatProvider>
             </AuthProvider>
             <Toaster position="top-center" reverseOrder={false} />
         </BrowserRouter>

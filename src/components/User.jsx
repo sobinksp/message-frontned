@@ -24,8 +24,8 @@ const User = () => {
                     <h6 className="card-subtitle mb-2 text-body-secondary">Logged in as {user?.role}</h6>
                 </div>
                 <ul className="list-group list-group-flush">
-                    <Link className="list-group-item list-group-item-action" to="/user" onClick={() => setIsOpen(false)}>
-                        Main
+                    <Link className="list-group-item list-group-item-action" to="/chat">
+                        Chat
                     </Link>
                     <Link className="list-group-item list-group-item-action" to="./verify" onClick={() => setIsOpen(!isOpen)}>
                         Verify
@@ -48,7 +48,7 @@ const User = () => {
             {isOpen && <div className="card position-absolute z-3" style={{  boxShadow: "rgba(0, 0, 0, 0.16) 0px 3px 6px, rgba(0, 0, 0, 0.23) 0px 3px 6px"}}>
             <Outlet />
             </div>}
-            <Shiba/>
+            <Shiba />
         </div>
     );
 };
