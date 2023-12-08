@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
 import toast from "react-hot-toast";
+import { initializeWebSocketConnection, disconnectWebSocket, sendMessage } from '../components/WebSocketService';
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
@@ -24,6 +25,18 @@ export const ChatProvider = ({ children }) => {
             }
         };
         getChat();
+        // Initialize WebSocket connection when the user is available
+        if (user) {
+            initializeWebSocketConnection(user.id, (message) => {
+            // Handle incoming WebSocket messages
+            setChatMessages((prevMessages) => [...prevMessages, message]);
+            });
+        }
+    
+        return () => {
+            // Disconnect WebSocket when the component unmounts
+            disconnectWebSocket();
+        };
     }, [user]);
 
     useEffect(() => {
