@@ -1,7 +1,7 @@
 import SockJS from 'sockjs-client';
 import Stomp from 'stompjs';
 
-const SOCKET_URL = 'http://localhost:8080/ws';
+const SOCKET_URL = 'http://localhost:8080/api/auth/ws';
 
 let stompClient;
 
@@ -23,8 +23,13 @@ const initializeWebSocketConnection = (userId, onMessageReceived) => {
 const disconnectWebSocket = () => {
   if (stompClient) {
     stompClient.disconnect();
+    console.log('Disconnected 1');
   }
-  console.log('Disconnected');
+  console.log('Disconnected 2');
+};
+
+const sendMessage = (messageData) => {
+  stompClient.send('/app/sendMessage', {}, JSON.stringify(messageData));
 };
 
 export { initializeWebSocketConnection, disconnectWebSocket, sendMessage };
