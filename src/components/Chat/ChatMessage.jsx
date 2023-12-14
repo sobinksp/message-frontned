@@ -73,7 +73,7 @@ const BackToBottom = styled.div`
         opacity: 0.8;
     }
 `;
-const ChatMessage = ({ selectedUser, sendMessage, selectedChat, user, chatMesssages }) => {
+const ChatMessage = ({ selectedUser, sendMessage, sendMessageWS, selectedChat, user, chatMesssages }) => {
     const messageContainerRef = useRef(null);
     const [showButton, setShowButton] = useState(false);
     const [message, setMessage] = useState("");
@@ -108,10 +108,10 @@ const ChatMessage = ({ selectedUser, sendMessage, selectedChat, user, chatMesssa
         const messageData = {
             chatId: selectedChat,
             content: message,
-            sender: user?.id,
-            recipient: selectedUser.id,
+            senderId: user?.id,
+            recipientId: selectedUser.id,
         };
-        sendMessage(messageData);
+        sendMessageWS(messageData);
         setMessage("");
         setMessageError("");
     };
@@ -120,7 +120,7 @@ const ChatMessage = ({ selectedUser, sendMessage, selectedChat, user, chatMesssa
         <ChatContainer>
             <UserInfoDiv className="py-2 px-3 d-flex align-items-center justify-content-between">
                 <div className="d-flex align-items-center gap-3">
-                    <ImgProfile src="https://cdn-icons-png.flaticon.com/512/8824/8824303.png" />
+                    <ImgProfile src={selectedUser?.userImageUrl ? selectedUser?.userImageUrl : "https://cdn-icons-png.flaticon.com/512/8824/8824303.png"} />
                     <h4 className="mb-0 fw-bold text-white">
                         {selectedUser ? <span className="text-warning">{selectedUser.username}</span> : "No user selected"}
                     </h4>
@@ -135,19 +135,19 @@ const ChatMessage = ({ selectedUser, sendMessage, selectedChat, user, chatMesssa
             </UserInfoDiv>
             {selectedUser ? (
                 <ChatDiv className="p-3" ref={messageContainerRef}>
-                    {chatMesssages?.map((message) =>
-                        message.sender !== user?.id.toString() ? (
-                            <div key={message.id}>
+                    {chatMesssages?.map((message, i) =>
+                        message.senderId !== user?.id.toString() ? (
+                            <div key={i}>
                                 <ChatStack>
-                                    <ImgChat src="https://cdn-icons-png.flaticon.com/512/6236/6236513.png" />
+                                    <ImgChat src={selectedUser?.userImageUrl ? selectedUser?.userImageUrl : "https://cdn-icons-png.flaticon.com/512/8824/8824303.png"} />
                                     <ChatBalloon>{message.content}</ChatBalloon>
                                 </ChatStack>
                                 <div className="text-start ms-5">{moment(message.timestamp).calendar()}</div>
                             </div>
                         ) : (
-                            <div key={message.id}>
+                            <div key={i}>
                                 <ChatStack className="self">
-                                    <ImgChat src="https:cdn-icons-png.flaticon.com/512/4600/4600417.png" />
+                                    <ImgChat src={user?.userImageUrl ? user?.userImageUrl : "https://cdn-icons-png.flaticon.com/512/4600/4600417.png"} />
                                     <ChatSelfBalloon>{message.content}</ChatSelfBalloon>
                                 </ChatStack>
                                 <div className="text-end me-5">{moment(message.timestamp).calendar()}</div>
@@ -162,9 +162,9 @@ const ChatMessage = ({ selectedUser, sendMessage, selectedChat, user, chatMesssa
             )}
             <div className="p-3 d-flex gap-2 border-top border-2">
                 <div className="input-group">
-                    <button className="btn btn-primary">
+                    {/* <button className="btn btn-primary">
                         <FaPaperclip />
-                    </button>
+                    </button> */}
                     <input
                         type="text"
                         className={`form-control ${messageError ? "is-invalid" : ""}`}

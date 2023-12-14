@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaPenToSquare, FaMagnifyingGlass } from "react-icons/fa6";
 import styled from "styled-components";
 import { useChat } from "../../contexts/ChatContext";
@@ -42,13 +42,48 @@ const SearchInput = styled.input`
     padding-left: 30px;
 `;
 
-const UserList = ({ chatData, userInformation, handleSelectUser, user, selectedUser, isOpen, setIsOpen }) => {
+const OnlineLight = styled.div`
+    width: 10px;
+    height: 10px;
+    background: #0eff00;
+    border-radius: 50%;
+    margin-left: 10px;
+    box-shadow: 0px 0px 8px #0eff00;
+`;
+const OfflineLight = styled.div`
+    width: 10px;
+    height: 10px;
+    background: #d3d3d3;
+    border-radius: 50%;
+    margin-left: 10px;
+    box-shadow: 0px 0px 8px #d3d3d3;
+`;
+
+const UserList = ({ chatData, userInformation, user, selectedUser, isOpen, setIsOpen, onlineUsers, setSelectedUser, setSelectedChat }) => {
+    const [searchFilter, setSearchFilter] = useState("");
+
+    const filteredUserIds = Object.keys(userInformation).filter((userId) =>
+        userInformation[userId].username.toLowerCase().includes(searchFilter.toLowerCase())
+    );
+
+    const handleSelectUser = (recipientUser, chatId) => {
+        setSelectedUser(recipientUser)
+        setSelectedChat(chatId)
+    }
+
+    
     return (
         <UserListDiv className="p-3">
             <div className="mb-3 d-flex gap-2">
                 <SearchDiv>
                     <MagnifyingIcon />
-                    <SearchInput type="search" className="form-control" placeholder="Search" />
+                    <SearchInput
+                        type="search"
+                        className="form-control"
+                        placeholder="Search"
+                        value={searchFilter}
+                        onChange={(e) => setSearchFilter(e.target.value)}
+                    />
                 </SearchDiv>
                 <button className="btn text-white bg-transparent" onClick={() => setIsOpen(!isOpen)}>
                     <FaPenToSquare />
@@ -59,18 +94,24 @@ const UserList = ({ chatData, userInformation, handleSelectUser, user, selectedU
                     {chatData?.map((chat) =>
                         chat.members.map((userId) => {
                             const isCurrentUser = userId === user?.id;
-                            if (!isCurrentUser) {
+                            const onlineUser = onlineUsers.find((onlineUser) => onlineUser.id === userId);
+                            if(isCurrentUser) return null;
+                            if (filteredUserIds.includes(userId.toString())) {
                                 return (
                                     <li
                                         key={userId}
-                                        className={`list-group-item list-group-item-action ${selectedUser?.id === userId ? "active" : ""} d-flex justify-content-between align-items-start`}
+                                        className={`list-group-item list-group-item-action ${
+                                            selectedUser?.id === userId ? "active" : ""
+                                        } d-flex justify-content-between align-items-start`}
                                         onClick={() => handleSelectUser(userInformation[userId], chat.id)}
                                         role="button"
                                     >
-                                        <ImgProfile src="https://cdn-icons-png.flaticon.com/512/6236/6236513.png" />
+                                        <ImgProfile src={userInformation[userId].userImageUrl ? userInformation[userId].userImageUrl : "https://cdn-icons-png.flaticon.com/512/8824/8824303.png"} />
                                         <div className="ms-2 me-auto text-truncate">
                                             <div className="fw-bold">
-                                                <span className={``}>{userInformation[userId]?.username}</span>
+                                                <span className="d-flex align-items-center">
+                                                    {userInformation[userId]?.username} {onlineUser ? <OnlineLight /> : <OfflineLight />}
+                                                </span>
                                             </div>
                                             *last message here*
                                         </div>

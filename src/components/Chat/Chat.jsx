@@ -12,23 +12,42 @@ const ScreenDiv = styled.div`
     grid-template-columns: 1fr 5fr;
     @media screen and (max-width: 768px) {
         grid-template-columns: 1fr;
-      }
+    }
 `;
 
-
 const Chat = () => {
-    const { chatData, userInformation, sendMessage, selectedUser, setSelectedUser, selectedChat, setSelectedChat, chatMesssages } = useChat();
+    const {
+        chatData,
+        userInformation,
+        sendMessage,
+        sendMessageWS,
+        selectedUser,
+        setSelectedUser,
+        selectedChat,
+        setSelectedChat,
+        chatMesssages,
+        onlineUsers,
+        createNewChat,
+    } = useChat();
     const { user } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
-    const handleSelectUser = (user, chatId) => {
-        setSelectedUser(user)
-        setSelectedChat(chatId)
-    }
+
     return (
         <ScreenDiv>
-            <UserList chatData={chatData} userInformation={userInformation} user={user} handleSelectUser={handleSelectUser} selectedUser={selectedUser} setIsOpen={setIsOpen} isOpen={isOpen}/>
-            <ChatMessage selectedUser={selectedUser} sendMessage={sendMessage} selectedChat={selectedChat} user={user} chatMesssages={chatMesssages}/>
-            {isOpen && <AddChat setIsOpen={setIsOpen} />}
+            <UserList
+                chatData={chatData}
+                userInformation={userInformation}
+                user={user}
+                setSelectedUser={setSelectedUser}
+                setSelectedChat={setSelectedChat}
+                selectedUser={selectedUser}
+                setIsOpen={setIsOpen}
+                isOpen={isOpen}
+                onlineUsers={onlineUsers}
+                
+            />
+            <ChatMessage selectedUser={selectedUser} sendMessageWS={sendMessageWS} selectedChat={selectedChat} user={user} chatMesssages={chatMesssages} />
+            {isOpen && <AddChat setIsOpen={setIsOpen} createNewChat={createNewChat}/>}
         </ScreenDiv>
     );
 };

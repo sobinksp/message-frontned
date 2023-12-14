@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }) => {
         setIsAdmin(false);
         setIsOpen(false);
         navigate("/");
-        // window.location.reload(true);
+        window.location.reload(true);
         
     };
 
