@@ -1,8 +1,11 @@
 import axios from "axios";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useAuth } from "./AuthContext";
+import SockJS from "sockjs-client";
+import Stomp from "stompjs";
 import toast from "react-hot-toast";
-import { initializeWebSocketConnection, disconnectWebSocket, sendMessage } from '../components/WebSocketService';
+
+const SOCKET_URL = "http://localhost:8080/api/auth/ws";
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
@@ -12,75 +15,97 @@ export const ChatProvider = ({ children }) => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [selectedChat, setSelectedChat] = useState(null);
     const [chatMesssages, setChatMessages] = useState([]);
+    const [messageNotifications, setMessageNotifications] = useState([]);
+    const [stompClient, setStompClient] = useState(null);
+    const [onlineUsers, setOnlineUsers] = useState([]);
+
     useEffect(() => {
-        const getChat = async () => {
-            const token = user?.token;
-            if (token) {
-                try {
-                    const response = await axios.get(`http://localhost:8080/api/chat/${user?.id}`, { headers: { Authorization: `Bearer ${token}` } });
-                    setChatData(response.data);
-                } catch (error) {
-                    console.error(error);
-                }
-            }
-        };
-        getChat();
-        // Initialize WebSocket connection when the user is available
         if (user) {
-            initializeWebSocketConnection(user.id, (message) => {
-            // Handle incoming WebSocket messages
-            setChatMessages((prevMessages) => [...prevMessages, message]);
-            });
+            const socket = new SockJS(SOCKET_URL);
+            const stomp = Stomp.over(socket);
+            const onConnected = () => {
+                setStompClient(stomp);
+                stomp.subscribe(`/user/${user?.id}/queue/messages`, onMessageReceived);
+                stomp.subscribe(`/user/public/connect`, getOnlineUsers);
+                stomp.send(`/app/user.addUser`, {}, JSON.stringify({ id: user?.id, username: user?.username, role: user?.role, status: "ONLINE" }));
+                getOnlineUsers();
+            };
+
+            const onError = (error) => {
+                console.error("WebSocket connection error:", error);
+            };
+
+            stomp.connect({}, onConnected, onError);
         }
-    
+
         return () => {
-            // Disconnect WebSocket when the component unmounts
-            disconnectWebSocket();
-        };
-    }, [user]);
-
-    useEffect(() => {
-        const fetchUserInformation = async () => {
-            const token = user?.token;
-            if (token) {
-                try {
-                    for (const chat of chatData) {
-                        for (const userId of chat.members) {
-                            const response = await axios.get(`http://localhost:8080/api/users/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
-                            const userInfo = await response.data;
-                            setUserInformation((prevInfo) => ({
-                                ...prevInfo,
-                                [userId]: userInfo,
-                            }));
-                        }
-                    }
-                } catch (error) {
-                    console.error(error);
-                }
+            if (stompClient) {
+                console.log("disconnect web socket");
+                stompClient.send(
+                    `/app/user.disconnectUser`,
+                    {},
+                    JSON.stringify({ id: user?.id, username: user?.username, role: user?.role, status: "OFFLINE" })
+                );
+                stompClient.disconnect();
             }
         };
-        fetchUserInformation();
-    }, [chatData]);
+    }, [user, selectedUser]);
 
-    
+    const onMessageReceived = (payload) => {
+        const message = JSON.parse(payload.body);
+        const { chatId, content, senderId, recipientId } = message;
+        console.log("selectedUser", selectedUser);
+        if (selectedUser?.id.toString() === senderId) {
+            setChatMessages((prevMessages) => [...prevMessages, { chatId, content, senderId, recipientId }]);
+        }
+    };
+
+    const sendMessageWS = (messageData) => {
+        const { chatId, content, senderId, recipientId } = messageData;
+        console.log("send message", { chatId, content, senderId, recipientId });
+        if (stompClient) {
+            stompClient.send("/app/chat", {}, JSON.stringify({ chatId, content, senderId, recipientId }));
+            setChatMessages((prevMessages) => [...prevMessages, { chatId, content, senderId: String(senderId), recipientId: String(recipientId) }]);
+        } else {
+            toast.error("Error sending message");
+        }
+    };
 
     useEffect(() => {
-        const getMessage = async () => {
-            const token = user?.token;
-            if (token) {
-                try {
-                    const response = await axios.get(`http://localhost:8080/api/message/${selectedChat}`, { headers: { Authorization: `Bearer ${token}` } });
-                    setChatMessages(response.data);
-                } catch (error) {
-                    console.error(error);
-                }
+        const handleBeforeUnload = () => {
+            if (stompClient) {
+                console.log("disconnect web socket");
+                stompClient.send(
+                    `/app/user.disconnectUser`,
+                    {},
+                    JSON.stringify({ id: user?.id, username: user?.username, role: user?.role, status: "OFFLINE" })
+                );
+                stompClient.disconnect();
+            }
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+        };
+    }, [stompClient]);
+
+    const getOnlineUsers = async () => {
+        const token = user?.token;
+        if (token) {
+            try {
+                const response = await axios.get("http://localhost:8080/api/usersOnline", { headers: { Authorization: `Bearer ${token}` } });
+                const filtered = response.data.filter((onlineUser) => onlineUser.id !== user?.id);
+                setOnlineUsers(filtered);
+            } catch (error) {
+                console.error(error);
             }
         }
-        getMessage();
-    }, [selectedChat])
+    };
 
     const sendMessage = async (messageData) => {
-        const { chatId, content, sender, recipient } = messageData;
+        const { chatId, content, senderId, recipientId } = messageData;
         const token = user?.token;
         if (token) {
             try {
@@ -89,8 +114,8 @@ export const ChatProvider = ({ children }) => {
                     {
                         chatId,
                         content,
-                        sender,
-                        recipient,
+                        senderId,
+                        recipientId,
                     },
                     { headers: { Authorization: `Bearer ${token}` } }
                 );
@@ -103,7 +128,105 @@ export const ChatProvider = ({ children }) => {
         }
     };
 
-    return <ChatContext.Provider value={{ chatData, userInformation, sendMessage, selectedUser, setSelectedUser, selectedChat, setSelectedChat, chatMesssages }}>{children}</ChatContext.Provider>;
+    const createNewChat = async (recipientId) => {
+        const token = user?.token;
+        if (token) {
+            try {
+                const response = await axios.post(
+                    "http://localhost:8080/api/chat",
+                    { members: [user?.id, recipientId] },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    }
+                );
+                setChatData((prevChats) => [...prevChats, response.data]);
+                toast.success("Chat created successfully");
+            } catch (error) {
+                console.error(error);
+                toast.success("Error creating chat");
+            }
+        }
+    };
+
+    useEffect(() => {
+        const getChat = async () => {
+            const token = user?.token;
+            if (token) {
+                try {
+                    const response = await axios.get(`http://localhost:8080/api/chat/${user?.id}`, { headers: { Authorization: `Bearer ${token}` } });
+                    console.log("chatData", response.data);
+                    setChatData(response.data);
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        };
+        getChat();
+    }, [user]);
+
+    useEffect(() => {
+        const getUserInformation = async () => {
+            const token = user?.token;
+            if (token) {
+                try {
+                    for (const chat of chatData) {
+                        for (const userId of chat.members) {
+                            if (user?.id !== userId) {
+                                const response = await axios.get(`http://localhost:8080/api/users/${userId}`, {
+                                    headers: { Authorization: `Bearer ${token}` },
+                                });
+                                const userInfo = await response.data;
+                                setUserInformation((prevInfo) => ({
+                                    ...prevInfo,
+                                    [userId]: userInfo,
+                                }));
+                            }
+                        }
+                    }
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        };
+        getUserInformation();
+    }, [chatData]);
+
+    useEffect(() => {
+        const getMessage = async () => {
+            const token = user?.token;
+            if (token) {
+                try {
+                    const response = await axios.get(`http://localhost:8080/api/message/${selectedChat}`, { headers: { Authorization: `Bearer ${token}` } });
+                    setChatMessages(response.data);
+                } catch (error) {
+                    console.error(error);
+                }
+            }
+        };
+        getMessage();
+    }, [selectedChat]);
+
+    return (
+        <ChatContext.Provider
+            value={{
+                chatData,
+                userInformation,
+                sendMessage,
+                sendMessageWS,
+                selectedUser,
+                setSelectedUser,
+                selectedChat,
+                setSelectedChat,
+                chatMesssages,
+                onlineUsers,
+                createNewChat,
+            }}
+        >
+            {children}
+        </ChatContext.Provider>
+    );
 };
 
 export const useChat = () => {
