@@ -3,7 +3,7 @@ import { FaPenToSquare, FaMagnifyingGlass } from "react-icons/fa6";
 import styled from "styled-components";
 import { useChat } from "../../contexts/ChatContext";
 import { useAuth } from "../../contexts/AuthContext";
-
+import { Link } from "react-router-dom";
 const UserListDiv = styled.div`
     width: 100%;
     height: 100vh;
@@ -69,6 +69,7 @@ const UserList = ({ chatData, userInformation, user, selectedUser, isOpen, setIs
     const handleSelectUser = (recipientUser, chatId) => {
         setSelectedUser(recipientUser)
         setSelectedChat(chatId)
+        localStorage.setItem("selectedUser", JSON.stringify(recipientUser));
     }
 
     

@@ -49,20 +49,19 @@ export const ChatProvider = ({ children }) => {
                 stompClient.disconnect();
             }
         };
-    }, [user, selectedUser]);
+    }, [user]);
 
     const onMessageReceived = (payload) => {
         const message = JSON.parse(payload.body);
         const { chatId, content, senderId, recipientId } = message;
-        console.log("selectedUser", selectedUser);
-        if (selectedUser?.id.toString() === senderId) {
+        const selectedUserObject = JSON.parse(localStorage.getItem("selectedUser"));
+        if (selectedUserObject?.id.toString() === senderId) {
             setChatMessages((prevMessages) => [...prevMessages, { chatId, content, senderId, recipientId }]);
         }
     };
 
     const sendMessageWS = (messageData) => {
         const { chatId, content, senderId, recipientId } = messageData;
-        console.log("send message", { chatId, content, senderId, recipientId });
         if (stompClient) {
             stompClient.send("/app/chat", {}, JSON.stringify({ chatId, content, senderId, recipientId }));
             setChatMessages((prevMessages) => [...prevMessages, { chatId, content, senderId: String(senderId), recipientId: String(recipientId) }]);
@@ -156,7 +155,6 @@ export const ChatProvider = ({ children }) => {
             if (token) {
                 try {
                     const response = await axios.get(`http://localhost:8080/api/chat/${user?.id}`, { headers: { Authorization: `Bearer ${token}` } });
-                    console.log("chatData", response.data);
                     setChatData(response.data);
                 } catch (error) {
                     console.error(error);
