@@ -27,6 +27,7 @@ export const ChatProvider = ({ children }) => {
                 setStompClient(stomp);
                 stomp.subscribe(`/user/${user?.id}/queue/messages`, onMessageReceived);
                 stomp.subscribe(`/user/public/connect`, getOnlineUsers);
+                stomp.subscribe(`/user/${user?.id}/chatroom`, onChatCreated)
                 stomp.send(`/app/user.addUser`, {}, JSON.stringify({ id: user?.id, username: user?.username, role: user?.role, status: "ONLINE" }));
                 getOnlineUsers();
             };
@@ -59,6 +60,14 @@ export const ChatProvider = ({ children }) => {
             setChatMessages((prevMessages) => [...prevMessages, { chatId, content, senderId, recipientId }]);
         }
     };
+
+    const onChatCreated = (payload) => {
+        const message =JSON.parse(payload.body);
+        const { id, members } = message;
+        setChatData((prevChats) => [...prevChats, message]);
+        toast.success(`New chat created with ${members[0]}`);
+
+    }
 
     const sendMessageWS = (messageData) => {
         const { chatId, content, senderId, recipientId } = messageData;
@@ -144,7 +153,7 @@ export const ChatProvider = ({ children }) => {
                 toast.success("Chat created successfully");
             } catch (error) {
                 console.error(error);
-                toast.success("Error creating chat");
+                toast.error("Error creating chat");
             }
         }
     };

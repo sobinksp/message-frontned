@@ -111,7 +111,7 @@ const UserList = ({ chatData, userInformation, user, selectedUser, isOpen, setIs
                                         <div className="ms-2 me-auto text-truncate">
                                             <div className="fw-bold">
                                                 <span className="d-flex align-items-center">
-                                                    {userInformation[userId]?.username} {onlineUser ? <OnlineLight /> : <OfflineLight />}
+                                                    {userInformation[userId]?.username} ({userInformation[userId]?.id}){onlineUser ? <OnlineLight /> : <OfflineLight />}
                                                 </span>
                                             </div>
                                             *last message here*
