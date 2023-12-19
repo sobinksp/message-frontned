@@ -31,7 +31,10 @@ const Chat = () => {
     } = useChat();
     const { user } = useAuth();
     const [isOpen, setIsOpen] = useState(false);
-
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const toggleMenu = () => {
+        setIsMenuOpen(!isMenuOpen);
+    };
     return (
         <ScreenDiv>
             <UserList
@@ -44,10 +47,11 @@ const Chat = () => {
                 setIsOpen={setIsOpen}
                 isOpen={isOpen}
                 onlineUsers={onlineUsers}
-                
+                isMenuOpen={isMenuOpen}
+                toggleMenu={toggleMenu}
             />
-            <ChatMessage selectedUser={selectedUser} sendMessageWS={sendMessageWS} selectedChat={selectedChat} user={user} chatMesssages={chatMesssages} />
-            {isOpen && <AddChat setIsOpen={setIsOpen} createNewChat={createNewChat}/>}
+            <ChatMessage selectedUser={selectedUser} sendMessageWS={sendMessageWS} selectedChat={selectedChat} user={user} chatMesssages={chatMesssages} toggleMenu={toggleMenu}/>
+            {isOpen && <AddChat setIsOpen={setIsOpen} createNewChat={createNewChat} />}
         </ScreenDiv>
     );
 };

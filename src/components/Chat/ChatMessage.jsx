@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { FaPaperPlane, FaPaperclip, FaAngleLeft, FaAngleDown } from "react-icons/fa6";
+import { FaPaperPlane, FaUserGroup, FaAngleLeft, FaAngleDown } from "react-icons/fa6";
 import { Link } from "react-router-dom";
 import moment from "moment/moment";
 
@@ -73,7 +73,23 @@ const BackToBottom = styled.div`
         opacity: 0.8;
     }
 `;
-const ChatMessage = ({ selectedUser, sendMessage, sendMessageWS, selectedChat, user, chatMesssages }) => {
+
+const UserListButton = styled.div`
+    color: white;
+    cursor: pointer;
+    padding: 2px 10px;
+    border-radius: 0.375rem;
+    &:hover {
+        background-color: #333;
+    }
+
+    @media screen and (min-width: 768px) {
+        display: none;
+    }
+
+`;
+
+const ChatMessage = ({ selectedUser, sendMessage, sendMessageWS, selectedChat, user, chatMesssages, toggleMenu }) => {
     const messageContainerRef = useRef(null);
     const [showButton, setShowButton] = useState(false);
     const [message, setMessage] = useState("");
@@ -120,6 +136,12 @@ const ChatMessage = ({ selectedUser, sendMessage, sendMessageWS, selectedChat, u
         <ChatContainer>
             <UserInfoDiv className="py-2 px-3 d-flex align-items-center justify-content-between">
                 <div className="d-flex align-items-center gap-3">
+                    <UserListButton onClick={toggleMenu}>
+                        <h3>
+                            <FaUserGroup />
+                        </h3>
+                    </UserListButton>
+                    <div className="vr text-white d-md-none"></div>
                     <ImgProfile src={selectedUser?.userImageUrl ? selectedUser?.userImageUrl : "https://cdn-icons-png.flaticon.com/512/8824/8824303.png"} />
                     <h4 className="mb-0 fw-bold text-white">
                         {selectedUser ? <span className="text-warning">{selectedUser.username}</span> : "No user selected"}

@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { FaPenToSquare, FaMagnifyingGlass } from "react-icons/fa6";
 import styled from "styled-components";
-import { useChat } from "../../contexts/ChatContext";
-import { useAuth } from "../../contexts/AuthContext";
-import { Link } from "react-router-dom";
+
 const UserListDiv = styled.div`
     width: 100%;
     height: 100vh;
     overflow: auto;
     background: #222;
+    transition: left 0.3s ease;
     &::-webkit-scrollbar {
         width: 10px;
     }
@@ -20,6 +19,12 @@ const UserListDiv = styled.div`
 
     &::-webkit-scrollbar-thumb:hover {
         background: #555;
+    }
+    @media screen and (max-width: 768px) {
+        position: absolute !important;
+        z-index: 3;
+        min-width: 0px;
+        left: ${props => (props.open ? '0' : '-1000px')}; 
     }
 `;
 const ImgProfile = styled.img`
@@ -59,7 +64,7 @@ const OfflineLight = styled.div`
     box-shadow: 0px 0px 8px #d3d3d3;
 `;
 
-const UserList = ({ chatData, userInformation, user, selectedUser, isOpen, setIsOpen, onlineUsers, setSelectedUser, setSelectedChat }) => {
+const UserList = ({ chatData, userInformation, user, selectedUser, isOpen, setIsOpen, onlineUsers, setSelectedUser, setSelectedChat, isMenuOpen, toggleMenu }) => {
     const [searchFilter, setSearchFilter] = useState("");
 
     const filteredUserIds = Object.keys(userInformation).filter((userId) =>
@@ -70,11 +75,12 @@ const UserList = ({ chatData, userInformation, user, selectedUser, isOpen, setIs
         setSelectedUser(recipientUser)
         setSelectedChat(chatId)
         localStorage.setItem("selectedUser", JSON.stringify(recipientUser));
+        toggleMenu();
     }
 
     
     return (
-        <UserListDiv className="p-3">
+        <UserListDiv className="p-3" open={isMenuOpen}>
             <div className="mb-3 d-flex gap-2">
                 <SearchDiv>
                     <MagnifyingIcon />
