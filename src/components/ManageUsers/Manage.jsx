@@ -4,6 +4,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import axios from "axios";
 import { FaPen, FaRegTrashCan, FaFloppyDisk } from "react-icons/fa6";
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "../../apiConfig";
 
 const Manage = () => {
     const { user, isAdmin, setIsOpen } = useAuth();
@@ -21,7 +22,7 @@ const Manage = () => {
             const token = user?.token;
             if (token) {
                 try {
-                    const response = await axios.get("http://localhost:8080/api/users", { headers: { Authorization: `Bearer ${token}` } });
+                    const response = await axios.get(`${API_BASE_URL}/api/users`, { headers: { Authorization: `Bearer ${token}` } });
                     setUsers(response.data);
                 } catch (error) {
                     console.error(error);
@@ -44,7 +45,7 @@ const Manage = () => {
         const token = user?.token;
         if (token) {
             try {
-                await axios.put(`http://localhost:8080/api/users`, updatedUserData, { headers: { Authorization: `Bearer ${token}` } });
+                await axios.put(`${API_BASE_URL}/api/users`, updatedUserData, { headers: { Authorization: `Bearer ${token}` } });
                 setUsers((prevUsers) => prevUsers.map((user) => (user.id === userId ? { ...user, ...updatedUserData } : user)));
                 setEditMode((prevEditMode) => ({
                     ...prevEditMode,
@@ -82,7 +83,7 @@ const Manage = () => {
         const token = user?.token;
         if (token) {
             try {
-                await axios.delete(`http://localhost:8080/api/users/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
+                await axios.delete(`${API_BASE_URL}/api/users/${userId}`, { headers: { Authorization: `Bearer ${token}` } });
                 setUsers((prevUsers) => prevUsers.filter((userData) => userData.id !== userId));
                 setEditMode((prevEditMode) => ({
                     ...prevEditMode,

@@ -4,8 +4,9 @@ import { useAuth } from "./AuthContext";
 import SockJS from "sockjs-client";
 import Stomp from "stompjs";
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "../apiConfig";
 
-const SOCKET_URL = "http://localhost:8080/api/auth/ws";
+const SOCKET_URL = `${API_BASE_URL}/api/auth/ws`;
 const ChatContext = createContext();
 
 export const ChatProvider = ({ children }) => {
@@ -103,7 +104,7 @@ export const ChatProvider = ({ children }) => {
         const token = user?.token;
         if (token) {
             try {
-                const response = await axios.get("http://localhost:8080/api/usersOnline", { headers: { Authorization: `Bearer ${token}` } });
+                const response = await axios.get(`${API_BASE_URL}/api/usersOnline`, { headers: { Authorization: `Bearer ${token}` } });
                 const filtered = response.data.filter((onlineUser) => onlineUser.id !== user?.id);
                 setOnlineUsers(filtered);
             } catch (error) {
@@ -118,7 +119,7 @@ export const ChatProvider = ({ children }) => {
         if (token) {
             try {
                 const response = await axios.post(
-                    `http://localhost:8080/api/message`,
+                    `${API_BASE_URL}/api/message`,
                     {
                         chatId,
                         content,
@@ -141,7 +142,7 @@ export const ChatProvider = ({ children }) => {
         if (token) {
             try {
                 const response = await axios.post(
-                    "http://localhost:8080/api/chat",
+                    `${API_BASE_URL}/api/chat`,
                     { members: [user?.id, recipientId] },
                     {
                         headers: {
@@ -163,7 +164,7 @@ export const ChatProvider = ({ children }) => {
             const token = user?.token;
             if (token) {
                 try {
-                    const response = await axios.get(`http://localhost:8080/api/chat/${user?.id}`, { headers: { Authorization: `Bearer ${token}` } });
+                    const response = await axios.get(`${API_BASE_URL}/api/chat/${user?.id}`, { headers: { Authorization: `Bearer ${token}` } });
                     setChatData(response.data);
                 } catch (error) {
                     console.error(error);
@@ -181,7 +182,7 @@ export const ChatProvider = ({ children }) => {
                     for (const chat of chatData) {
                         for (const userId of chat.members) {
                             if (user?.id !== userId) {
-                                const response = await axios.get(`http://localhost:8080/api/users/${userId}`, {
+                                const response = await axios.get(`${API_BASE_URL}/api/users/${userId}`, {
                                     headers: { Authorization: `Bearer ${token}` },
                                 });
                                 const userInfo = await response.data;
@@ -205,7 +206,7 @@ export const ChatProvider = ({ children }) => {
             const token = user?.token;
             if (token) {
                 try {
-                    const response = await axios.get(`http://localhost:8080/api/message/${selectedChat}`, { headers: { Authorization: `Bearer ${token}` } });
+                    const response = await axios.get(`${API_BASE_URL}/api/message/${selectedChat}`, { headers: { Authorization: `Bearer ${token}` } });
                     setChatMessages(response.data);
                 } catch (error) {
                     console.error(error);

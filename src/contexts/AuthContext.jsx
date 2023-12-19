@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "../apiConfig";
 
 const AuthContext = createContext();
 
@@ -18,7 +19,7 @@ export const AuthProvider = ({ children }) => {
             if (token) {
                 try {
                     const response = await axios.post(
-                        "http://localhost:8080/api/auth/verification",
+                        `${API_BASE_URL}/api/auth/verification`,
                         { username: userData.username },
                         { headers: { Authorization: `Bearer ${token}` } }
                     );

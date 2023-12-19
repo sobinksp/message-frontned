@@ -2,6 +2,7 @@ import React, { useRef, useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { API_BASE_URL } from "../apiConfig";
 
 const Verify = () => {
     const [successMessage, setSuccessMessage] = useState("");
@@ -23,7 +24,7 @@ const Verify = () => {
 
     const handleVerifyToken = async () => {
         try {
-            const response = await axios.get("http://localhost:8080/api/demo-controller", {
+            const response = await axios.get(`${API_BASE_URL}/api/demo-controller`, {
                 headers: {
                     Authorization: `Bearer ${user.token}`,
                 },

@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import toast from "react-hot-toast";
 import axios from "axios";
-
+import { API_BASE_URL } from "../apiConfig";
 const Login = () => {
     const navigate = useNavigate();
     const { user, setUser, setIsAdmin } = useAuth();
@@ -39,7 +39,7 @@ const Login = () => {
         e.preventDefault();
         try {
             setIsLoading(true);
-            const response = await axios.post("http://localhost:8080/api/auth/authentication", formData);
+            const response = await axios.post(`${API_BASE_URL}/api/auth/authentication`, formData);
             localStorage.setItem("user_data", JSON.stringify(response.data));
             setUser(response.data);
             if (response.data.role === "ADMIN") setIsAdmin(true);

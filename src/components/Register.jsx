@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "../apiConfig";
 
 const Register = () => {
     const [isLoading, setIsLoading] = useState(false);
@@ -30,7 +31,7 @@ const Register = () => {
         }
         try {
             setIsLoading(true);
-            const response = await axios.post("http://localhost:8080/api/auth/register", formData);
+            const response = await axios.post(`${API_BASE_URL}/api/auth/register`, formData);
             toast.success("Registered successfully");
             navigate("/login");
             setErrorMessage("");
