@@ -131,7 +131,7 @@ const UserList = ({ chatData, userInformation, user, selectedUser, isOpen, setIs
                         })
                     )}
                     {chatData.length === 0 && (
-                        <li className="list-group-item d-flex justify-content-between align-items-start disabled">
+                        <li className="list-group-item d-flex justify-content-between align-items-start" onClick={toggleMenu}>
                             <ImgProfile src="https://cdn-icons-png.flaticon.com/512/8824/8824303.png" />
                             <div className="ms-2 me-auto text-truncate">
                                 <div className="fw-bold">No user chat found</div>
